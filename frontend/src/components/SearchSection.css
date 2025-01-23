@@ -118,6 +118,10 @@
     height: 18px;
   }
   
+  .mobile-only {
+    display: none;
+  }
+  
   @media (max-width: 768px) {
     .search-section {
       padding: 4rem 1rem;
@@ -132,6 +136,8 @@
       width: 32px;
       height: 32px;
     }
+  
+    .mobile-only {
+      display: flex;
+    }
   }
-  
-  

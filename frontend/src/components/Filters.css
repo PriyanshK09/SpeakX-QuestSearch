@@ -117,7 +117,30 @@
     color: #ff5733;
   }
   
+  .filter-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+  }
+  
+  .filter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
   @media (max-width: 768px) {
+    .filter-overlay {
+      display: block;
+    }
+  
     .filters {
       position: fixed;
       top: 0;
@@ -126,7 +149,7 @@
       max-width: 300px;
       height: 100vh;
       border-radius: 0;
-      z-index: 1000;
+      z-index: 999;
       transition: right 0.3s ease;
       overflow-y: auto;
     }
@@ -138,25 +161,4 @@
     .filters-close {
       display: block;
     }
-  
-    .filters::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: -1;
-    }
-  
-    .filters.active::before {
-      opacity: 1;
-      visibility: visible;
-    }
   }
-  
-  

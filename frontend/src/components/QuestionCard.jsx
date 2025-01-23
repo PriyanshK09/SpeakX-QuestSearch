@@ -1,4 +1,5 @@
 import React from "react"
+import { FileQuestion, Book, BarChart2, Clock } from "lucide-react"
 import "./QuestionCard.css"
 
 function QuestionCard({ type, title, category, difficulty, duration }) {
@@ -6,7 +7,7 @@ function QuestionCard({ type, title, category, difficulty, duration }) {
     <article className="question-card">
       <div className="question-header">
         <div className="question-type">
-          <span className="type-icon">📝</span>
+          <FileQuestion size={16} className="type-icon" />
           {type}
         </div>
         <button className="view-details">View Details</button>
@@ -16,15 +17,15 @@ function QuestionCard({ type, title, category, difficulty, duration }) {
 
       <div className="question-tags">
         <span className={`tag tag-${category.toLowerCase()}`}>
-          <span className="tag-icon">📚</span>
+          <Book size={14} className="tag-icon" />
           {category}
         </span>
         <span className={`tag tag-${difficulty.toLowerCase()}`}>
-          <span className="tag-icon">📊</span>
+          <BarChart2 size={14} className="tag-icon" />
           {difficulty}
         </span>
         <span className="tag tag-duration">
-          <span className="tag-icon">⏱️</span>
+          <Clock size={14} className="tag-icon" />
           {duration}
         </span>
       </div>
@@ -33,4 +34,3 @@ function QuestionCard({ type, title, category, difficulty, duration }) {
 }
 
 export default QuestionCard
-
