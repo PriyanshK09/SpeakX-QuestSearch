@@ -5,6 +5,7 @@ import Filters from "./components/Filters"
 import QuestionCard from "./components/QuestionCard"
 import Pagination from "./components/Pagination"
 import Footer from "./components/Footer"
+import NoResults from "./components/NoResults"
 import "./App.css"
 
 function App() {
@@ -127,12 +128,25 @@ function App() {
     return matchesSearch && matchesCategory && matchesDifficulty
   })
 
-  const totalPages = Math.ceil(filteredQuestions.length / pageSize)
+  // Update the pagination related code
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize))
   const currentQuestions = filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
+  // Add this check before setting current page
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1)
+    }
+  }, [filteredQuestions.length, currentPage, totalPages])
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  const handleFilterChange = (newFilters) => {
+    setSelectedFilters(newFilters)
+    setCurrentPage(1) // Reset to first page when filters change
   }
 
   return (
@@ -144,16 +158,27 @@ function App() {
           <Filters
             isOpen={isFilterOpen}
             onClose={() => setIsFilterOpen(false)}
-            onFilterChange={setSelectedFilters}
+            onFilterChange={handleFilterChange}
+            initialFilters={selectedFilters}
             className="desktop-filters"
           />
           <div className="questions-container">
             <div className="questions-grid">
-              {currentQuestions.map((question, index) => (
-                <QuestionCard key={index} {...question} />
-              ))}
+              {filteredQuestions.length > 0 ? (
+                currentQuestions.map((question, index) => (
+                  <QuestionCard key={index} {...question} />
+                ))
+              ) : (
+                <NoResults />
+              )}
             </div>
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            {filteredQuestions.length > 0 && (
+              <Pagination 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                onPageChange={handlePageChange} 
+              />
+            )}
           </div>
         </div>
       </main>

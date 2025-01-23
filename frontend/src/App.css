@@ -30,6 +30,7 @@
 .questions-grid {
   display: grid;
   gap: 1.25rem;
+  min-height: 400px; /* Ensure consistent height */
 }
 
 .trusted-banner {
@@ -40,6 +41,16 @@
   font-weight: 500;
   color: #1f2937;
   border-bottom: 1px solid rgba(255, 87, 51, 0.1);
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 1.125rem;
 }
 
 @media (max-width: 1024px) {
@@ -55,4 +66,3 @@
     padding: 1rem;
   }
 }
-
