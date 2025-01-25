@@ -27,7 +27,7 @@ function App() {
   const [loading, setLoading] = useState(false)
 
   const fetchQuestions = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const request = new GetQuestionsRequest();
       request.setPage(currentPage);
@@ -38,17 +38,23 @@ function App() {
       filters.setTypesList(selectedFilters.types);
       request.setFilters(filters);
 
+      console.log('Request:', request.toObject()); // Debug log
+
       const response = await new Promise((resolve, reject) => {
         client.getQuestions(request, {}, (err, response) => {
           if (err) {
             console.error('gRPC Error:', err);
             reject(err);
           }
+          console.log('Raw Response:', response.toObject()); // Debug log
           resolve(response);
         });
       });
 
-      setQuestions(response.getQuestionsList());
+      const questions = response.getQuestionsList();
+      console.log('Processed Questions:', questions.map(q => q.toObject())); // Debug log
+      
+      setQuestions(questions);
       setTotalPages(response.getTotalpages());
     } catch (error) {
       console.error('Error fetching questions:', error);
