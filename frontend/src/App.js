@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
+import { QuestionServiceClient } from "./proto/questions_grpc_web_pb"
+import { GetQuestionsRequest, Filters as FiltersProto } from "./proto/questions_pb"
 import Header from "./components/Header"
 import SearchSection from "./components/SearchSection"
 import Filters from "./components/Filters"
@@ -8,136 +10,54 @@ import Footer from "./components/Footer"
 import NoResults from "./components/NoResults"
 import "./App.css"
 
+const client = new QuestionServiceClient('http://localhost:8080');
+
 function App() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(6)
+  const [pageSize] = useState(6) // Removed setPageSize
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFilters, setSelectedFilters] = useState({
-    categories: [],
-    difficulties: [],
+    types: [],
   })
+  const [questions, setQuestions] = useState([])
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(false)
 
-  // Sample questions data (in real app, this would come from an API)
-  const questions = [
-    {
-      type: "MCQ",
-      title: "What is the correct usage of Present Perfect tense?",
-      category: "Grammar",
-      difficulty: "Intermediate",
-      duration: "2 min",
-    },
-    {
-      type: "Fill in the blanks",
-      title: 'Complete the sentence: "If I _____ rich, I would travel the world."',
-      category: "Vocabulary",
-      difficulty: "Beginner",
-      duration: "2 min",
-    },
-    {
-      type: "True/False",
-      title: "Present Continuous tense is used for past actions.",
-      category: "Grammar",
-      difficulty: "Beginner",
-      duration: "2 min",
-    },
-    {
-      type: "MCQ",
-      title: "Which of the following is a synonym of 'happy'?",
-      category: "Vocabulary",
-      difficulty: "Intermediate",
-      duration: "2 min",
-    },
-    {
-      type: "MCQ",
-      title: "What is the past participle of 'eat'?",
-      category: "Grammar",
-      difficulty: "Advanced",
-      duration: "2 min",
-    },
-    {
-      type: "Fill in the blanks",
-      title: 'Complete the sentence: "I _____ to the store yesterday."',
-      category: "Grammar",
-      difficulty: "Intermediate",
-      duration: "2 min",
-    },
-    {
-      type: "True/False",
-      title: "Past Perfect tense is used for actions that happened after another action.",
-      category: "Grammar",
-      difficulty: "Advanced",
-      duration: "2 min",
-    },
-    {
-      type: "MCQ",
-      title: "Which of the following is a synonym of 'angry'?",
-      category: "Vocabulary",
-      difficulty: "Beginner",
-      duration: "2 min",
-    },
-    {
-      type: "Fill in the blanks",
-      title: 'Complete the sentence: "She _____ to the concert last night."',
-      category: "Grammar",
-      difficulty: "Intermediate",
-      duration: "2 min",
-    },
-    {
-      type: "True/False",
-      title: "Past Continuous tense is used for actions that happened in the past and are still happening.",
-      category: "Grammar",
-      difficulty: "Advanced",
-      duration: "2 min",
-    },
-    {
-      type: "MCQ",
-      title: "Which of the following is a synonym of 'beautiful'?",
-      category: "Vocabulary",
-      difficulty: "Intermediate",
-      duration: "2 min",
-    },
-    {
-      type: "MCQ",
-      title: "What is the past participle of 'go'?",
-      category: "Grammar",
-      difficulty: "Beginner",
-      duration: "2 min",
-    },
-  ]
+  const fetchQuestions = useCallback(async () => {
+    setLoading(true)
+    try {
+      const request = new GetQuestionsRequest();
+      request.setPage(currentPage);
+      request.setPagesize(pageSize);
+      request.setSearch(searchQuery);
 
-  // Update page size based on screen width
-  useEffect(() => {
-    const handleResize = () => {
-      setPageSize(window.innerWidth < 768 ? 4 : 6)
+      const filters = new FiltersProto();
+      filters.setTypesList(selectedFilters.types);
+      request.setFilters(filters);
+
+      const response = await new Promise((resolve, reject) => {
+        client.getQuestions(request, {}, (err, response) => {
+          if (err) {
+            console.error('gRPC Error:', err);
+            reject(err);
+          }
+          resolve(response);
+        });
+      });
+
+      setQuestions(response.getQuestionsList());
+      setTotalPages(response.getTotalpages());
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage, pageSize, searchQuery, selectedFilters]);
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
-
-  // Filter and paginate questions
-  const filteredQuestions = questions.filter((question) => {
-    const matchesSearch = question.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory =
-      selectedFilters.categories.length === 0 || selectedFilters.categories.includes(question.category)
-    const matchesDifficulty =
-      selectedFilters.difficulties.length === 0 || selectedFilters.difficulties.includes(question.difficulty)
-
-    return matchesSearch && matchesCategory && matchesDifficulty
-  })
-
-  // Update the pagination related code
-  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize))
-  const currentQuestions = filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-
-  // Add this check before setting current page
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(1)
-    }
-  }, [filteredQuestions.length, currentPage, totalPages])
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
@@ -146,14 +66,22 @@ function App() {
 
   const handleFilterChange = (newFilters) => {
     setSelectedFilters(newFilters)
-    setCurrentPage(1) // Reset to first page when filters change
+    setCurrentPage(1)
+  }
+
+  const handleSearch = (query) => {
+    setSearchQuery(query)
+    setCurrentPage(1)
   }
 
   return (
     <div className="app">
       <Header />
       <main className="main">
-        <SearchSection onFilterToggle={() => setIsFilterOpen(true)} onSearch={setSearchQuery} />
+        <SearchSection 
+          onFilterToggle={() => setIsFilterOpen(true)} 
+          onSearch={handleSearch}
+        />
         <div className="content-wrapper">
           <Filters
             isOpen={isFilterOpen}
@@ -164,15 +92,20 @@ function App() {
           />
           <div className="questions-container">
             <div className="questions-grid">
-              {filteredQuestions.length > 0 ? (
-                currentQuestions.map((question, index) => (
-                  <QuestionCard key={index} {...question} />
+              {loading ? (
+                <div>Loading...</div>
+              ) : questions.length > 0 ? (
+                questions.map((question) => (
+                  <QuestionCard 
+                    key={question.getId()} 
+                    {...question.toObject()} 
+                  />
                 ))
               ) : (
                 <NoResults />
               )}
             </div>
-            {filteredQuestions.length > 0 && (
+            {questions.length > 0 && (
               <Pagination 
                 currentPage={currentPage} 
                 totalPages={totalPages} 

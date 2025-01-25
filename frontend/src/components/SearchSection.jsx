@@ -2,14 +2,25 @@ import React from "react"
 import { Search, Filter } from "lucide-react"
 import "./SearchSection.css"
 
-function SearchSection({ onFilterToggle }) {
+function SearchSection({ onFilterToggle, onSearch }) {
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    console.log('Search value:', value);
+    onSearch(value);
+  };
+
   return (
     <section className="search-section">
       <div className="search-container">
         <h1 className="search-title">Find Your Perfect Question</h1>
         <p className="search-description">Search through our extensive database of English learning questions</p>
         <div className="search-box-wrapper">
-          <input type="search" placeholder="Search for questions..." className="search-input" />
+          <input 
+            type="search" 
+            placeholder="Search for questions..." 
+            className="search-input"
+            onChange={handleSearch}
+          />
           <button className="search-btn">
             <Search size={20} />
           </button>

@@ -2,7 +2,40 @@ import React from "react"
 import { FileQuestion, Book, BarChart2, Clock } from "lucide-react"
 import "./QuestionCard.css"
 
-function QuestionCard({ type, title, category, difficulty, duration }) {
+function QuestionCard({ type, title, blocks, options, anagramType }) {
+  const renderContent = () => {
+    switch (type) {
+      case 'ANAGRAM':
+        return (
+          <div className="anagram-preview">
+            <p className="anagram-type">{anagramType}</p>
+            <div className="anagram-blocks">
+              {blocks?.map((block, index) => (
+                <span key={index} className="anagram-block">{block.text}</span>
+              ))}
+            </div>
+          </div>
+        );
+      
+      case 'MCQ':
+        return (
+          <div className="mcq-preview">
+            {options?.slice(0, 2).map((option, index) => (
+              <div key={index} className="mcq-option">
+                {option.text}
+              </div>
+            ))}
+            {options?.length > 2 && <div className="mcq-more">...</div>}
+          </div>
+        );
+
+      case 'READ_ALONG':
+      case 'CONTENT_ONLY':
+      default:
+        return null;
+    }
+  };
+
   return (
     <article className="question-card">
       <div className="question-header">
@@ -15,20 +48,7 @@ function QuestionCard({ type, title, category, difficulty, duration }) {
 
       <h3 className="question-title">{title}</h3>
 
-      <div className="question-tags">
-        <span className={`tag tag-${category.toLowerCase()}`}>
-          <Book size={14} className="tag-icon" />
-          {category}
-        </span>
-        <span className={`tag tag-${difficulty.toLowerCase()}`}>
-          <BarChart2 size={14} className="tag-icon" />
-          {difficulty}
-        </span>
-        <span className="tag tag-duration">
-          <Clock size={14} className="tag-icon" />
-          {duration}
-        </span>
-      </div>
+      {renderContent()}
     </article>
   )
 }
