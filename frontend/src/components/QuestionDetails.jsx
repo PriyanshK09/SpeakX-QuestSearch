@@ -188,6 +188,50 @@ function QuestionDetails({ question, isOpen, onClose }) {
     }
   };
 
+  const renderFeedback = () => {
+    if (isCorrect === true) {
+      return (
+        <div className="feedback-message success">
+          <Check className="feedback-icon" />
+          <div className="feedback-content">
+            <h4>Excellent work!</h4>
+            <p>You've got the correct answer</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (isCorrect === false) {
+      return (
+        <div className="feedback-message error">
+          <AlertTriangle className="feedback-icon" />
+          <div className="feedback-content">
+            <h4>Keep trying!</h4>
+            <p>That's not quite right</p>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const renderActions = () => {
+    if (isCorrect !== true && ["ANAGRAM", "MCQ"].includes(questionData.type) && !showSolution) {
+      return (
+        <div className="actions">
+          <button 
+            className="solution-btn" 
+            onClick={handleSolutionClick}
+          >
+            Show Solution
+          </button>
+        </div>
+      );
+    }
+    return null;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -202,28 +246,8 @@ function QuestionDetails({ question, isOpen, onClose }) {
           <h2 className="question-title">{questionData.title}</h2>
           
           {renderContent()}
-
-          {["ANAGRAM", "MCQ"].includes(questionData.type) && !showSolution && (
-            <div className="actions">
-              <button 
-                className="solution-btn" 
-                onClick={handleSolutionClick}
-              >
-                Show Solution
-              </button>
-            </div>
-          )}
-
-          {isCorrect !== null && (
-            <div className={`feedback ${isCorrect ? "correct" : "incorrect"}`}>
-              {isCorrect ? (
-                <Check className="feedback-icon" />
-              ) : (
-                <AlertTriangle className="feedback-icon" />
-              )}
-              <p>{isCorrect ? "Correct!" : "Incorrect. Try again!"}</p>
-            </div>
-          )}
+          {renderFeedback()}
+          {renderActions()}
 
           {showSolution && (
             <div className="solution">
