@@ -9,6 +9,7 @@
     border: 1px solid rgba(0, 0, 0, 0.06);
     background: linear-gradient(to bottom, white, rgba(255, 241, 240, 0.5));
     backdrop-filter: blur(8px);
+    z-index: 100;
   }
   
   .filters-header {
@@ -133,7 +134,7 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    z-index: 998;
+    z-index: 999;
   }
   
   .filter-overlay.active {
@@ -154,17 +155,17 @@
       position: fixed;
       top: 0;
       right: -100%;
-      width: 100%;
+      width: 85%;
       max-width: 300px;
       height: 100vh;
       border-radius: 0;
-      z-index: 999;
-      transition: right 0.3s ease;
+      z-index: 1000;
+      transition: transform 0.3s ease;
       overflow-y: auto;
     }
   
     .filters.active {
-      right: 0;
+      transform: translateX(-100%);
     }
   
     .filters-close {

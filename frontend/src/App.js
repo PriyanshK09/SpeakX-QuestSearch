@@ -9,6 +9,8 @@ import Pagination from "./components/Pagination"
 import Footer from "./components/Footer"
 import NoResults from "./components/NoResults"
 import "./App.css"
+import { scrollToTop } from "./utils/scroll"
+import Loading from "./components/Loading"
 
 const client = new QuestionServiceClient('http://localhost:8080');
 
@@ -60,12 +62,15 @@ function App() {
   }, [fetchQuestions]);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
+    setCurrentPage(page);
+    scrollToTop();
+  };
 
   const handleFilterChange = (newFilters) => {
-    setSelectedFilters(newFilters)
+    console.log('New filters:', newFilters); // Debug log
+    setSelectedFilters({
+      types: newFilters.types || []
+    })
     setCurrentPage(1)
   }
 
@@ -74,12 +79,18 @@ function App() {
     setCurrentPage(1)
   }
 
+  const handleFilterToggle = () => {
+    setIsFilterOpen(prev => !prev);
+    // Lock body scroll when filter is open
+    document.body.style.overflow = !isFilterOpen ? 'hidden' : 'unset';
+  };
+
   return (
     <div className="app">
       <Header />
       <main className="main">
         <SearchSection 
-          onFilterToggle={() => setIsFilterOpen(true)} 
+          onFilterToggle={handleFilterToggle} 
           onSearch={handleSearch}
         />
         <div className="content-wrapper">
@@ -93,7 +104,7 @@ function App() {
           <div className="questions-container">
             <div className="questions-grid">
               {loading ? (
-                <div>Loading...</div>
+                <Loading />
               ) : questions.length > 0 ? (
                 questions.map((question) => (
                   <QuestionCard 
@@ -105,7 +116,7 @@ function App() {
                 <NoResults />
               )}
             </div>
-            {questions.length > 0 && (
+            {questions.length > 0 && !loading && (
               <Pagination 
                 currentPage={currentPage} 
                 totalPages={totalPages} 

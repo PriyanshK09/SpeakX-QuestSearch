@@ -1,12 +1,18 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import "./Filters.css"
 
 function Filters({ isOpen, onClose, onFilterChange, initialFilters = {}, className = "" }) {
   const [filters, setFilters] = useState({
-    categories: initialFilters.categories || [],
-    difficulties: initialFilters.difficulties || [],
+    types: initialFilters.types || [],
   })
+
+  const QUESTION_TYPES = [
+    { id: "MCQ", label: "Multiple Choice" },
+    { id: "ANAGRAM", label: "Anagram" },
+    { id: "READ_ALONG", label: "Read Along" },
+    { id: "CONTENT_ONLY", label: "Content Only" }
+  ]
 
   const handleFilterChange = (type, value) => {
     setFilters(prev => {
@@ -21,15 +27,23 @@ function Filters({ isOpen, onClose, onFilterChange, initialFilters = {}, classNa
     })
   }
 
-  const handleClose = () => {
-    onClose()
-  }
+  // Cleanup effect for body scroll
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
   return (
     <>
       <div 
         className={`filter-overlay ${isOpen ? "active" : ""}`} 
-        onClick={handleClose}
+        onClick={onClose}
         aria-hidden="true"
       />
 
@@ -38,7 +52,7 @@ function Filters({ isOpen, onClose, onFilterChange, initialFilters = {}, classNa
           <h2 className="filters-title">Filters</h2>
           <button 
             className="filters-close" 
-            onClick={handleClose}
+            onClick={onClose}
             aria-label="Close filters"
           >
             <X size={20} />
@@ -46,36 +60,18 @@ function Filters({ isOpen, onClose, onFilterChange, initialFilters = {}, classNa
         </div>
 
         <div className="filter-group">
-          <h3 className="filter-heading">Category</h3>
+          <h3 className="filter-heading">Question Type</h3>
           <div className="filter-options">
-            {["Grammar", "Vocabulary", "Listening", "Speaking"].map(category => (
-              <label key={category} className="filter-option">
+            {QUESTION_TYPES.map(({ id, label }) => (
+              <label key={id} className="filter-option">
                 <input
                   type="checkbox"
                   className="filter-checkbox"
-                  checked={filters.categories.includes(category)}
-                  onChange={() => handleFilterChange("categories", category)}
+                  checked={filters.types.includes(id)}
+                  onChange={() => handleFilterChange("types", id)}
                 />
                 <span className="checkbox-custom"></span>
-                <span className="filter-label">{category}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="filter-group">
-          <h3 className="filter-heading">Difficulty</h3>
-          <div className="filter-options">
-            {["Beginner", "Intermediate", "Advanced"].map(difficulty => (
-              <label key={difficulty} className="filter-option">
-                <input
-                  type="checkbox"
-                  className="filter-checkbox"
-                  checked={filters.difficulties.includes(difficulty)}
-                  onChange={() => handleFilterChange("difficulties", difficulty)}
-                />
-                <span className="checkbox-custom"></span>
-                <span className="filter-label">{difficulty}</span>
+                <span className="filter-label">{label}</span>
               </label>
             ))}
           </div>

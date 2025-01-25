@@ -3,12 +3,6 @@ import { Search, Filter } from "lucide-react"
 import "./SearchSection.css"
 
 function SearchSection({ onFilterToggle, onSearch }) {
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    console.log('Search value:', value);
-    onSearch(value);
-  };
-
   return (
     <section className="search-section">
       <div className="search-container">
@@ -19,12 +13,17 @@ function SearchSection({ onFilterToggle, onSearch }) {
             type="search" 
             placeholder="Search for questions..." 
             className="search-input"
-            onChange={handleSearch}
+            onChange={(e) => onSearch(e.target.value)}
           />
           <button className="search-btn">
             <Search size={20} />
           </button>
-          <button className="filter-btn mobile-only" onClick={onFilterToggle} aria-label="Filter">
+          {/* Make filter button visible only on mobile */}
+          <button 
+            className="filter-btn mobile-only" 
+            onClick={onFilterToggle}
+            aria-label="Filter"
+          >
             <Filter size={18} />
           </button>
         </div>
