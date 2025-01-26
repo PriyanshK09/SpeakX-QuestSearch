@@ -93,7 +93,14 @@ service QuestionService {
 
 ## 📱 Screenshots
 
-[Add your application screenshots here]
+1. Home Page Screenshot:
+![Home Page](/HomePage1.png)
+
+2. Search Results Screenshot:
+![Search Results](/SearchFunction.png)
+
+3. Pagination Screenshot:
+![Pagination](/Pagination.png)
 
 ## 🤝 Contributing
 
